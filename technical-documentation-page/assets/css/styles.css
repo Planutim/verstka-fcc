@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gentium+Basic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+html{
+    scroll-behavior: smooth;
+    background-color: rgba(100,100,100,0.3);
+}
+body{
+    margin: 0;
+    padding: 0;
+}
+#wrapper{
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-areas: "a a";
+    padding: 0 20px;
+}
+#main-doc{
+    min-width: 600px;
+    grid-area: a;
+    padding-top: 60px;
+    background-color: #dddddd;
+    padding-left: 3px;
+}
+#navbar{
+    position: fixed;
+    display: none;
+    margin-top: 20px;
+    height: 100%;
+    /* background: linear-gradient(to right,rgba(118, 156, 67, 0.3), rgba(72, 189, 82, 0.3)); */
+}
+#navbar h1{
+    word-wrap: break-word;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 20px;
+    font-weight: bolder;
+    color: rgb(167, 12, 12);
+}
+.nav-links{
+    /* background-color: rgba(172, 204, 204, 0.3); */
+}
+.nav-link{
+    text-decoration: none;
+    color: rgb(124, 124, 211);
+
+}
+.nav-links li{
+    margin-top: 20px;
+    font-size: 16px;
+    
+    /* border-bottom: 1px solid grey; */
+    transition-property: all;
+    transition-duration: 0.1s;
+}
+.active{
+    border-left: 4px solid rgba(100,100,100, 0.6);
+}
+.nav-links li:hover{
+    font-size: 1.1em;
+}
+.nav-link{
+    margin-left: 3px;
+
+}
+
+#navbar>ul{
+    list-style: none;
+}
+.main-section{
+    position: relative;
+}
+.content>p{
+    
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.1em;
+}
+pre{
+    padding: 0;
+    border-bottom: 1px solid grey;
+    border-left: 1px solid grey;
+    white-space: pre-wrap;
+}
+code{
+    font-family: 'Source Code Pro', monospace;
+    font-size: 12px;
+    
+}
+.absolute{
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+
+}
+.absolute>p{
+    padding: 0;
+    margin: 0;
+}
+.content>pre{
+    position: relative;
+}
+
+span.type{
+    color:rgb(19, 19, 173);
+}
+span.object{
+    color: rgba(19, 19, 75,0.8) !important;
+}
+span.method{
+    color:rgb(163, 130, 96)
+}
+span.keyword{
+    color:rgb(196, 64, 103);
+}
+span.variable{
+    color:rgb(90, 158, 197)
+}
+span.comment{
+    color:rgb(56, 153, 43)
+}
+span.string{
+    color: rgb(241, 86, 86)
+}
+span.JClass{
+    color: rgba(67, 173, 81, 0.8);
+}
+span.integer{
+    color: rgba(38, 67, 196, 0.6)
+}
+span.no-color{
+    color: black;
+}
+span.error-message{
+    color: black;
+    padding: 1px;
+    background-color:rgb(231, 160, 181);
+}
+code .absolute{
+    top: 80px;
+    left: 280px;
+    border-left: 5px solid rgb(170, 193, 236);
+    padding: 3px 10px;
+    z-index: 3;
+    background: rgb(221, 213, 213);
+}
+code .absolute .filled{
+    color:rgb(122, 152, 209);
+}
+code .absolute .strikethrough{
+    text-decoration: line-through;
+}
+.code{
+    font-family: 'Gentium Basic', serif;
+}
+
+#main-doc h3,#main-doc h2{
+    font-weight: normal;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 24px;
+}
+#main-doc h1{
+    font-weight:  bold;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.outlined{
+    background-color:rgba(174, 174, 240,0.3);
+    padding: 2px;
+    font-family: 'Cormorant Garamond', serif;
+}
+.remark{
+    font-family: 'Playfair Display', serif;
+    background-color: rgba(174, 174, 240,0.3);
+    font-size: 12px;
+    padding: 10px;
+    padding-left: 30px;
+}
+
+.content h4{
+    font-weight: 400;
+    font-size: 18px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.test{
+    color: red i !important;
+}
+
+
+@media (min-width: 768px){
+    #wrapper{
+        grid-template-areas: ". a";
+    }
+    #navbar{
+        display: block;
+    }
+}

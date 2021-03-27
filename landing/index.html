@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel='stylesheet' href='assets/css/styles.css'>
+        <style>
+        @media (min-width:600px){
+            section>h2{
+                align-self: center;
+            }
+            #video{
+                display: block;
+            }
+}
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+            <header id="header">
+                <img id="header-img" src="https://previews.123rf.com/images/butenkow/butenkow1612/butenkow161200953/67326089-pattern-design-logo-internet-vector-illustration-of-icon.jpg">
+                <nav id="nav-bar">
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#contact_us" class="nav-link">Contacts</a>
+                </nav>
+            </header>
+            <div class="container">
+                <section id="about">
+                    <h2>About</h2>
+                    <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia anim</p>
+                    <iframe id="video" width="560" height="315" src="https://www.youtube.com/embed/gY9akxjX0iU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </section>
+                <section id="pricing">
+                    <h2>Pricing</h2>
+                    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam</p>
+                </section>
+                <section id="contact_us">
+                    <h2>Contact Us</h2>
+                    <form id="form" action="https://www.freecodecamp.com/email-submit">
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="Enter Email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" id="submit" value="Send">
+                            <input type="hidden" class="checkbox">
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <footer id="footer">
+                <div>
+                    <a href="#wrapper">Go to top ↑</a>
+                    <span>(c) Production by me, 2021</span>
+                </div>
+            </footer>
+        </div>
+        <script src="assets/js/myscript.js"></script>
+        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+        <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] +
+            ':35729/livereload.js?snipver=2"></' + 'script>')</script>
+    </body>
+</html>

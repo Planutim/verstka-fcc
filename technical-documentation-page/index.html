@@ -1,0 +1,496 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="assets/css/styles.css">
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav id="navbar">
+                <header>
+                    <h1>The Basics of TypeScript</h1>
+                </header>
+                <ul class="nav-links">
+                    <li><a class="nav-link" href="#The_Basics" >The Basics</a></li>
+                    <li><a class="nav-link" href="#Static_type-checking">Static type-checking</a></li>
+                    <li><a class="nav-link" href="#Non-exception_Failures">Non-exception Failures</a></li>
+                    <li><a class="nav-link" href="#Types_for_Tooling">Types for Tooling</a></li>
+                    <li><a class="nav-link" href="#tsc,_the_TypeScript_compiler">tsc, the TypeScript compiler</a></li>
+                    <li><a class="nav-link" href="#Explicit_Types">Explicit Types</a></li>
+                    <li><a class="nav-link" href="#Erased_Types">Erased Types</a></li>
+                    <li><a class="nav-link" href="#Downleveling">Downleveling</a></li>
+                    <li><a class="nav-link" href="#Strictness">Strictness</a></li>
+                </ul>
+            </nav>
+            <main id="main-doc">
+                <section id="The_Basics" class="main-section">
+                    <header>
+                        <h1>The Basics</h1>
+                    </header>
+                    <article class="content">
+                        <p>
+                            Each and every value in JavaScript has a set of behaviors you can observe from running different operations. That sounds abstract, but as a quick example, consider some operations we might run on a variable named <span class="outlined">message</span>.
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="comment">// Accessing the property 'toLowerCase'</span></br>
+                                <span class="comment">// on 'message' and then calling it</span></br>
+                                <span class="code"><span class="object">message</span>.<span class="method">toLowerCase</span>()</span><br/>
+                                <br/>
+                                <span class="comment">// Calling 'message'</span><br/>
+                                <span class="code"><span class="method">message</span>()
+                            </code>
+                        </pre>
+                        <p>
+                            If we break this down, the first runnable line of code accesses a property called <span class="outline">toLowerCase</span> and then calls it. The second one tries to call <span class="outline">message</span> directly.
+                        </p>
+                        <p>
+                            But assuming we don’t know the value of <span class="outlined">message</span> - and that’s pretty common - we can’t reliably say what results we’ll get from trying to run any of this code. The behavior of each operation depends entirely on what value we had in the first place.
+                        </p>
+                        <ul>
+                            <li><p>Is <span class="outlined">message</span> callable?</p></li>
+                            <li><p>Does it have a property called <span class="outlined">toLowerCase</span> on it?</p></li>
+                            <li><p>If it does, is <span class="outlined">toLowerCase</span> even callable?</p></li>
+                            <li><p>If both of these values are callable, what do they return?</p></li>
+                        </ul>
+                        <p>
+                            The answers to these questions are usually things we keep in our heads when we write JavaScript, and we have to hope we got all the details right.
+                        </p>
+                        <p>
+                            Let's say <span class="outlined">message</span> was defined in the following way.
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="code"><span class="type">const</span> <span class="variable">message</span> = <span class="string"> "Hello World!"</span></span>
+                            </code>
+                        </pre>
+                        <p>As you can probably guess, if we try to run <span class="outlined">message.toLowerCase()</span>, we’ll get the same string only in lower-case.</p>
+                        <p>What about that second line of code? If you’re familiar with JavaScript, you’ll know this fails with an exception:</p>
+                        <pre>
+                            <code>
+                                TypeError: message is not a function
+                            </code>
+                        </pre>
+                        <p>
+                            It’d be great if we could avoid mistakes like this.
+                        </p>
+                        <p>
+                            When we run our code, the way that our JavaScript runtime chooses what to do is by figuring out the <em>type</em> of the value - what sorts of behaviors and capabilities it has. That’s part of what that <span class="outlined">TypeError</span> is alluding to - it’s saying that the string <span class="outlined">"Hello World"</span> cannot be called as a function.
+                        </p>
+                        <p>
+                            For some values, such as the primitives <span class="outlined">string</span> and <span class="outlined">number</span>, we can identify their type at runtime using the <span class="outlined">typeof</span> operator. But for other things like functions, there’s no corresponding runtime mechanism to identify their types. For example, consider this function:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">fn</span>(<span class="object">x</span>) { <br/>
+                                    <span class="keyword">return</span> <span class="object">x</span>.<span class="method">flip</span>();
+                            </code>
+                        </pre>
+                        <p>
+                            We can <em>observe</em> by reading the code that this function will only work if given an object with a callable <span class="outlined">flip</span> property, but JavaScript doesn’t surface this information in a way that we can check while the code is running. The only way in pure JavaScript to tell what <span class="outlined">fn</span> does with a particular value is to call it and see what happens. This kind of behavior makes it hard to predict what code will do before it runs, which means it’s harder to know what your code is going to do while you’re writing it.
+                        </p>
+                        <p>
+                            Seen in this way, a <em>type</em> is the concept of describing which values can be passed to <span class="outlined">fn</span> and which will crash. JavaScript only truly provides dynamic typing - running the code to see what happens.
+                        </p>
+                        <p>
+                            The alternative is to use a <em>static</em> type system to make predictions about what code is expected <em>before</em> it runs.
+                        </p>
+                    </article>
+                </section>
+                <section id="Static_type-checking" class="main-section">
+                    <header>
+                        <h3>Static type-checking</h3>
+                    </header>
+                    <article class="content">
+                        <p>Think back to that <span class="outlined">TypeError</span> we got earlier from trying to call a <span class="outlined">string</span> as a function. <em>Most people</em> don’t like to get any sorts of errors when running their code - those are considered bugs! And when we write new code, we try our best to avoid introducing new bugs.</p>
+                        <p>
+                            If we add just a bit of code, save our file, re-run the code, and immediately see the error, we might be able to isolate the problem quickly; but that’s not always the case. We might not have tested the feature thoroughly enough, so we might never actually run into a potential error that would be thrown! Or if we were lucky enough to witness the error, we might have ended up doing large refactorings and adding a lot of different code that we’re forced to dig through.
+                        </p>
+                        <p>
+                            Ideally, we could have a tool that helps us find these bugs <em>before</em> our code runs. That’s what a static type-checker like TypeScript does. <em>Static</em> types <em>systems</em> describe the shapes and behaviors of what our values will be when we run our programs. A type-checker like TypeScript uses that information and tells us when things might be going off the rails.
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">const</span> <span class="variable">message</span> = <span class="string">"hello!"</span>;
+    
+                                <span class="error-underline"><span class="method">message</span></span>();
+                                <span class="error-message">This expression is not callable.
+                                    Type 'String' has no call signatures.
+                                </span>
+                            </code>
+                        </pre>
+                        <p>
+                            Running that last sample with TypeScript will give us an error message before we run the code in the first place.
+                        </p>
+                    </article>
+                </section>
+                <section id="Non-exception_Failures" class="main-section">
+                    <header>
+                        <h3>
+                        Non-exception Failures
+                        </h3>
+                    </header>
+                    <article class="content">
+                        <p>
+                            So far we’ve been discussing certain things like runtime errors - cases where the JavaScript runtime tells us that it thinks something is nonsensical. Those cases come up because <a href="https://tc39.github.io/ecma262/">the ECMAScript specification </a> has explicit instructions on how the language should behave when it runs into something unexpected.
+                        </p>
+                        <p>
+                            For example, the specification says that trying to call something that isn’t callable should throw an error. Maybe that sounds like “obvious behavior”, but you could imagine that accessing a property that doesn’t exist on an object should throw an error too. Instead, JavaScript gives us different behavior and returns the value <span class="outlined">undefined</span>:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">const</span> <span class="variable">user</span> = {
+                                    <span class="object">name</span>: <span class="string">"Daniel"</span>,
+                                    <span class="object">age</span>: <span class="integer">26</span>,
+                                  };
+                                  <span class="object">user</span>.<span class="object">location</span>; <span class="comment">// returns undefined</span>
+                            </code>
+                        </pre>
+                        <p>
+                            Ultimately, a static type system has to make the call over what code should be flagged as an error in its system, even if it’s “valid” JavaScript that won’t immediately throw an error. In TypeScript, the following code produces an error about location not being defined:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">const</span> <span class="variable">user</span> = {
+                                    <span class="object">name</span>: <span class="string">"Daniel"</span>,
+                                    <span class="object">age</span>: <span class="integer">26</span>,
+                                  };
+                                  <span class="object">user</span>.<span class="error-underline"><span class="object">location</span></span>;
+                                  <span class="error-message">
+                                    Property 'location' does not exist on type '{ name: string; age: number; }'.
+                                  </span>
+                            </code>
+                        </pre>
+                        <p>
+                            While sometimes that implies a trade-off in what you can express, the intent is to catch legitimate bugs in our programs. And TypeScript catches a <em>lot</em> of legitimate bugs.
+                        </p>
+                        <p>For example: typos,</p>
+                        <pre>
+                            <code>
+                                <span class="type">const</span> <span class="variable">announcement</span> = <span class="string">"Hello World!"</span>;
+    
+                                <span class="comment">// How quickly can you spot the typos?</span>
+                                <span class="object">announcement</span>.<span class="method">toLocaleLowercase</span>();
+                                <span class="object">announcement</span>.<span class="method">toLocalLowerCase</span>();
+    
+                                <span class="comment">                            // We probably meant to write this...</span>
+                                <span class="object">announcement</span>.<span class="method">toLocaleLowerCase</span>();
+                            </code>
+                        </pre>
+                        <p>uncalled functions,</p>
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">flipCoin</span>() {
+                                    <span class="comment">// Meant to be Math.random()</span>
+                                    <span class="keyword">return</span> <span class="JClass">Math</span>.<span class="method">random</span> < <span class="integer">0.5</span>;
+                                 <span class="error-message"> Operator '<' cannot be applied to types '() => number' and 'number'.</span>
+                                  }
+                            </code>
+                        </pre>
+                        <p>or basic logic errors.</p>
+                        <pre>
+                            <code>
+                                <span class="type">const</span> <span class="variable">value</span> = <span class="JClass">Math</span>.<span class="method">random</span>() < <span class="integer">0.5</span> ? <span class="string">"a"</span> : <span class="string">"b"</span>;
+                                <span class="keyword">if</span> (<span class="object">value</span> !== <span class="string">"a"</span>) {
+                                <span class="comment">// ...</span>
+                                } <span class="keyword">else if</span> (<span class="object">value</span> === <span class="string">"b"</span>) {
+                                <span class="error-message">This condition will always return 'false' since the types '"a"' and '"b"' have no overlap.</span>
+                                <span class="comment">// Oops, unreachable</span>
+                            </code>
+                        </pre>
+                    </article>
+                </section>
+                <section id="Types_for_Tooling" class="main-section">
+                    <header>
+                        <h3>Types for Tooling</h3>
+                    </header>
+                    <article class="content">
+                        <p>
+                            TypeScript can catch bugs when we make mistakes in our code. That’s great, but TypeScript can <em>also</em> prevent us from making those mistakes in the first place.
+                        </p>
+                        <p>
+                            The type-checker has information to check things like whether we’re accessing the right properties on variables and other properties. Once it has that information, it can also start <em>suggesting</em> which properties you might want to use.
+                        </p>
+                        <p>
+                            That means TypeScript can be leveraged for editing code too, and the core type-checker can provide error messages and code completion as you type in the editor. That’s part of what people often refer to when they talk about tooling in TypeScript.
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="keyword">import</span> <span class="object">express</span> <span class="keyword">from</span> <span class="string">"express"</span>;
+                                <span class="type">const</span> <span class="variable">app</span> = <span class="method">express</span>();
+    
+                                <span class="object">app</span>.<span class="method">get</span>(<span class="string">"/"</span>, <span class="type">function</span> (<span class="object">req</span>, <span class="object">res</span>) {
+                                res.sen<div class="absolute">
+                                    <p><span class="filled">sen</span>d</p>
+                                    <p><span class="filled">sen</span>dDate</p>
+                                    <p><span class="strikethrough"><span class="filled">sen</span>dfile</span></p>
+                                    <p><span class="filled">sen</span>dFile</p>
+                                    <p><span class="filled">sen</span>dStatus</p>
+                                </div>
+    
+                                });
+    
+                                <span class="object">app</span>.<span class="method">liste</span>
+                            </code>
+                        </pre>
+                        <p>
+                            TypeScript takes tooling seriously, and that goes beyond completions and errors as you type. An editor that supports TypeScript can deliver “quick fixes” to automatically fix errors, refactorings to easily re-organize code, and useful navigation features for jumping to definitions of a variable, or finding all references to a given variable. All of this is built on top of the type-checker and is fully cross-platform, so it’s likely that 
+                            <a href="https://github.com/Microsoft/TypeScript/wiki/TypeScript-Editor-Support">your favorite editor has TypeScript support available</a>.
+                        </p>
+                    </article>
+                </section>
+                <section id="tsc,_the_TypeScript_compiler" class="main-section">
+                    <header>
+                        <h3><span class="code">tsc</span>, the TypeScript compiler</h3>
+                    </header>
+                    <article class="content">
+                        <p>
+                            We’ve been talking about type-checking, but we haven’t yet used our type-checker. Let’s get acquainted with our new friend <span class="outlined">tsc</span>, the TypeScript compiler. First we’ll need to grab it via npm.
+                        </p>
+                        <pre>
+                            <code class="command"> 
+                                npm install -g typescript
+                            </code>
+                        </pre>
+                        <div class="remark">
+                            <p>This installs the TypeScript Compiler <span class="outlined">tsc</span> globally. You can use npx or similar tools if you’d prefer to run tsc from a local node_modules package instead.
+                            </p>
+                        </div>
+                        <p>
+                            Now let’s move to an empty folder and try writing our first TypeScript program: <span class="outlined">hello.ts</span>:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="comment">// Greets the world.</span>
+                                <span class="object">console</span>.<span class="method">log</span>(<span class="string">"Hello world!"</span>);
+                            </code>
+                        </pre>
+                        <p>
+                            Notice there are no frills here; this “hello world” program looks identical to what you’d write for a “hello world” program in JavaScript. And now let’s type-check it by running the command <span class="outlined">tsc</span> which was installed for us by the <span class="outlined">typescript</span> package.
+                        </p>
+                        <pre>
+                            <code class="command">
+                                tsc hello.ts
+                            </code>
+                        </pre>
+                        <p>Tada!</p>
+                        <p>Wait, “tada” <em>what</em> exactly? We ran <span class="outlined">tsc</span> and nothing happened! Well, there were no type errors, so we didn’t get any output in our console since there was nothing to report.</p>
+                        <p>
+                            But check again - we got some <em>file</em> output instead. If we look in our current directory, we’ll see a <span class="outlined">hello.js</span> file next to <span class="outlined">hello.ts</span>. That’s the output from our <span class="outlined">hello.ts</span> file after <span class="outlined">tsc</span> <em>compiles</em> or <em>transforms</em> it into a plain JavaScript file. And if we check the contents, we’ll see what TypeScript spits out after it processes a <span class="outlined">.ts</span> file:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="comment">// Greets the world.</span>
+                                <span class="object">console</span>.<span class="method">log</span>(<span class="string">"Hello world!"</span>);
+                            </code>
+                        </pre>
+                        <p>
+                            In this case, there was very little for TypeScript to transform, so it looks identical to what we wrote. The compiler tries to emit clean readable code that looks like something a person would write. While that’s not always so easy, TypeScript indents consistently, is mindful of when our code spans across different lines of code, and tries to keep comments around.
+                        </p>
+                        <p>
+                            What about if we <em>did</em> introduce a type-checking error? Let’s rewrite <span class="outlined">hello.ts</span>:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="comment">// This is an industrial-grade general-purpose greeter function:</span>
+                                <span class="type">function</span> <span class='method'>greet</span>(<span class="object">person</span>, <span class="object">date</span>) {
+                                <span class="object">console</span>.log(<span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type">${<span class="object">date</span>}</span>!`</span>);
+                                }
+    
+                                <span class="method">greet</span>(<span class="string">"Brendan"</span>);
+                            </code>
+                        </pre>
+                        <p>
+                            If we run <span class="outlined">tsc hello.ts</span> again, notice that we get an error on the command line!
+                        </p>
+                        <pre>
+                            <code class="command">
+                                Expected 2 arguments, but got 1.
+                            </code>
+                        </pre>
+                        <p>TypeScript is telling us we forgot to pass an argument to the <span class="outlined">greet</span> function, and rightfully so. So far we’ve only written standard JavaScript, and yet type-checking was still able to find problems with our code. Thanks TypeScript!
+                        </p>
+                        <h3>Emitting with Errors</h3>
+                        <p>
+                            One thing you might not have noticed from the last example was that our <span class="outlined">hello.js</span> file changed again. If we open that file up then we’ll see that the contents still basically look the same as our input file. That might be a bit surprising given the fact that <span class="outlined">tsc</span> reported an error about our code, but this is based on one of TypeScript’s core values: much of the time, you will know better than TypeScript.
+                        </p>
+                        <p>
+                            To reiterate from earlier, type-checking code limits the sorts of programs you can run, and so there’s a tradeoff on what sorts of things a type-checker finds acceptable. Most of the time that’s okay, but there are scenarios where those checks get in the way. For example, imagine yourself migrating JavaScript code over to TypeScript and introducing type-checking errors. Eventually you’ll get around to cleaning things up for the type-checker, but that original JavaScript code was already working! Why should converting it over to TypeScript stop you from running it?
+                        </p>
+                        <p>
+                            So TypeScript doesn’t get in your way. Of course, over time, you may want to be a bit more defensive against mistakes, and make TypeScript act a bit more strictly. In that case, you can use the <span class="outlined">--noEmitOnError</span> compiler option. Try changing your <span class="outlined">hello.ts</span> file and running <span class="outlined">tsc</span> with that flag:
+                        </p>
+                        <pre>
+                            <code class="command">
+                                tsc --noEmitOnError hello.ts
+                            </code>
+                        </pre>
+                        <p>
+                            You’ll notice that hello.js never gets updated.
+                        </p>
+                    </article>
+                </section>
+                <section id="Explicit_Types" class="main-section">
+                    <header>
+                        <h3>Explicit Types</h3>
+                    </header>
+                    <article class="content">
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">greet</span>(<span class="object">person</span>: <span class="JClass">string</span>, <span class="object">date</span>: <span class="JClass">Date</span>) {
+                                    <span class="object">console</span>.<span class="method">log</span>(<span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type">${<span class="object">date</span>.<span class="method">toDateString</span><span class="no-color">()</span>}</span>!`</span>);
+                                  }
+                            </code>
+                        </pre>
+                        <p>
+                            What we did was add <em>type annotations</em> on <span class="outlined">person</span> and <span class="outlined">date</span> to describe what types of values <span class="outlined">greet</span> can be called with. You can read that signature as "<span class="outlined">greet</span> takes a <span class="outlined">person</span> of type <span class="outlined">string</span>, and a <span class="outlined">date</span> of type <span class="outlined">Date</span>".
+                        </p>
+                        <p>
+                            With this, TypeScript can tell us about other cases where we might have been called incorrectly. For example…
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">greet</span>(<span class="object">person</span>: <span class="JClass">string</span>, <span class="object">date</span>: <span class="JClass")>Date</span> {
+                                    <span class="object">console</span>.<span class="method">log</span>(<span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type"><span class="type">${<span class="object">date</span>.<span class="method"></span><span class="no-color">()</span>}!`</span>);
+                                  }
+                                  
+                                  <span class="method">greet</span>(<span class="string">"Maddison"</span>, <span class="JClass">Date</span>());
+                                    <span class="error-message">Argument of type 'string' is not assignable to parameter of type 'Date'.</span>            
+                            </code>
+                        </pre>
+                        <p>Huh? TypeScript reported an error on our second argument, but why?</p>
+                        <p>
+                            Perhaps surprisingly, calling <span class="outlined">Date()</span> in JavaScript returns a <span class="outlined">string</span>. On the other hand, constructing a <span class="outlined">Date</span> with <span class="outlined">new Date()</span> actually gives us what we were expecting.
+                        </p>
+                        <p>Anyway, we can quickly fix up the error:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">greet</span>(<span class="object">person</span>: <span class="JClass">string</span>, <span class="object">date</span>: <span class="JClass")>Date</span> {
+                                    <span class="object">console</span>.<span class="method">log</span>(<span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type"><span class="type">${<span class="object">date</span>.<span class="method"></span><span class="no-color">()</span>}!`</span>);
+                                  }
+                                  
+                                  <span class="method">greet</span>(<span class="string">"Maddison"</span>, <span class="type"></span><span class="type">new</span> <span class="JClass">Date</span>());
+                            </code>
+                        </pre>
+                        <p>
+                            Keep in mind, we don’t always have to write explicit type annotations. In many cases, TypeScript can even just infer (or “figure out”) the types for us even if we omit them.
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="type">let</span> <span class="object">msg</span> = <span class="string">"hello there!"</span>;
+                                <span class="comment">//  ^ = let msg: string</span>
+                            </code>
+                        </pre>
+                        <p>
+                            Even though we didn’t tell TypeScript that msg had the type string it was able to figure that out. That’s a feature, and it’s best not to add annotations when the type system would end up inferring the same type anyway.
+                        </p>
+                        <div class="remark">
+                            <p>Not: when you see</p>
+                            <pre>
+                                <code class="command">
+                                    <span class="JClass">code comment colored like this</span>
+                                </code>
+                            </pre>
+                            <p>it means that we’re highlighting what your editor would show you inline. You can get the same experience in the web browser by hovering your mouse over blue-tinted code samples.</p>
+                        </div>
+                    </article>
+                </section>
+                <section id="Erased_Types" class="main-section">
+                    <header>
+                        <h3>Erased Types</h3>
+                    </header>
+                    <article class="content">
+                        <p>
+                            Let’s take a look at what happens when we compile the above function <span class="outlined">greet</span> with <span class="outlined">tsc</span> to output JavaScript:
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="string">"use strict";</span>
+                                <span class="type">function</span> <span class="method">greet</span>(<span class="object">person</span>, <span class="object">date</span>) {
+                                    <span class="object">console</span>.<span class="method">log</span>(<span class="string">"Hello "</span> + <span class="object">person</span> + <span class="string">", today is "</span> + <span class="object">date</span>.<span class="method">toDateString</span>() + <span class="string">"!"</span>);
+                                }
+                                <span class="method">greet</span>(<span class="string">"Maddison"</span>, <span class="type">new</span> <span class="JClass">Date</span>());
+                            </code>
+                        </pre>
+                        <p>Notice two things here:</p>
+                        <ol>
+                            <li><p>Our <span class="outlined">person</span> and <span class="outlined">date</span> parameters no longer have type annotations.</p></li>
+                            <li><p>Our "template string" - that string that used backticks (the <span class="outlined">`</span> character) - was converted to plain string with concatenations (<span class="outlined">+</span>).</p></li>
+                        </ol>
+                        <p>
+                            More on that second point later, but let’s now focus on that first point. Type annotations aren’t part of JavaScript (or ECMAScript to be pedantic), so there really aren’t any browsers or other runtimes that can just run TypeScript unmodified. That’s why TypeScript needs a compiler in the first place - it needs some way to strip out or transform any TypeScript-specific code so that you can run it. Most TypeScript-specific code gets erased away, and likewise, here our type annotations were completely erased.
+                        </p>
+                        <div class="remark">
+                            <p><strong>Remember</strong>: Type annotations never change the runtime behavior of your program.</p>
+                        </div>
+                    </article>
+                </section>
+                <section id="Downleveling" class="main-section">
+                    <header>
+                        <h3>Downleveling</h3>
+                    </header>
+                    <article class="content">
+                        <p>One other difference from the above was that our template string was rewritten from</p>
+                        <pre>
+                            <code>
+                                <span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type">${<span class="object">date</span>.<span class="method">toDateString</span><span class="no-color">()</span>}!`</span>;
+                            </code>
+                        </pre>
+                        <p>
+                            to
+                        </p>
+                        <pre>
+                            <code>
+                                <span class="string">"Hello "</span> + <span class="object">person</span> + <span class="string">", today is " </span> + <span class="object">date</span>.<span class="method">toDateString</span>() + <span class="string">"!"</span>;
+                            </code>
+                        </pre>
+                        <p>Why did this happen?</p>
+                        <p>Template strings are a feature from a version of ECMAScript called ECMAScript 2015 (a.k.a. ECMAScript 6, ES2015, ES6, etc. - don’t ask). TypeScript has the ability to rewrite code from newer versions of ECMAScript to older ones such as ECMAScript 3 or ECMAScript 5 (a.k.a. ES3 and ES5). This process of moving from a newer or “higher” version of ECMAScript down to an older or “lower” one is sometimes called <em>downleveling</em>.</p>
+                        <p>By default TypeScript targets ES3, an extremely old version of ECMAScript. We could have chosen something a little bit more recent by using the <span class="outlined">--target</span> flag. Running with <span class="outlined">--target es2015</span> changes TypeScript to target ECMAScript 2015, meaning code should be able to run wherever ECMAScript 2015 is supported. So running <span class="outlined">tsc --target es2015 input.ts</span> gives us the following output:</p>
+                        <pre>
+                            <code>
+                                <span class="type">function</span> <span class="method">greet</span>(<span class="object">person</span>, <span class="object">date</span>) {
+                                    <span class="object">console</span>.<span class="method">log</span>(<span class="string">`Hello <span class="type">${<span class="object">person</span>}</span>, today is <span class="type">${<span class="object">date</span>.<span class="method">toDateString</span><span class="no-color">()</span>}!`</span>);
+                                  }
+                                  <span class="method">greet</span>(<span class="string">"Maddison"</span>, <span class="type">new</span> <span class="JClass">Date</span>());
+                            </code>
+                        </pre>
+                        <div class="remark">
+                            <p>While the default target is ES3, the great majority of current browsers support ES2015. Most developers can therefore safely specify ES2015 or above as a target, unless compatibility with certain ancient browsers is important.</p>
+                        </div>
+                    </article>
+                </section>
+                <section id="Strictness" class="main-section">
+                    <header>
+                        <h3>Strictness</h3>
+                    </header>
+                    <article class="content">
+                        <p>
+                            Different users come to TypeScript looking for different things in a type-checker. Some people are looking for a more loose opt-in experience which can help validate only some parts of their program, and still have decent tooling. This is the default experience with TypeScript, where types are optional, inference takes the most lenient types, and there’s no checking for potentially <span class="outlined">null</span>/<span class="outlined">undefined</span> values. Much like how <span class="outlined">tsc</span> emits in the face of errors, these defaults are put in place to stay out of your way. If you’re migrating existing JavaScript, that might be a desirable first step.
+                        </p>
+                        <p>
+                            In contrast, a lot of users prefer to have TypeScript validate as much as it can straight away, and that’s why the language provides strictness settings as well. These strictness settings turn static type-checking from a switch (either your code is checked or not) into something closer to a dial. The farther you turn this dial up, the more TypeScript will check for you. This can require a little extra work, but generally speaking it pays for itself in the long run, and enables more thorough checks and more accurate tooling. When possible, a new codebase should always turn these strictness checks on.
+                        </p>
+                        <p>
+                            TypeScript has several type-checking strictness flags that can be turned on or off, and all of our examples will be written with all of them enabled unless otherwise stated. The <span class="outlined">--strict</span> flag in the CLI, or <span class="outlined">"strict": true</span> in a tsconfig.json toggles them all on simultaneously, but we can opt out of them individually. The two biggest ones you should know about are <span class="outlined">noImplicitAny</span> and <span class="outlined">strictNullChecks</span>.
+                        </p>
+                        <h4>noImplicitAny</h4>
+                        <p>
+                            Recall that in some places, TypeScript doesn’t try to infer any types for us and instead falls back to the most lenient type: <span class="outlined">any</span>. This isn’t the worst thing that can happen - after all, falling back to <span class="outlined">any</span> is just the plain JavaScript experience anyway.
+                        </p>
+                        <p>
+                            However, using <span class="outlined">any</span> often defeats the purpose of using TypeScript in the first place. The more typed your program is, the more validation and tooling you’ll get, meaning you’ll run into fewer bugs as you code. Turning on the <span class="outlined">noImplicitAny</span> flag will issue an error on any variables whose type is implicitly inferred as <span class="outlined">any</span>.
+                        </p>
+                        <h4>strictNullChecks</h4>
+                        <p>
+                            By default, values like <span class="outlined"></span> and <span class="outlined">undefined</span> are assignable to any other type. This can make writing some code easier, but forgetting to handle <span class="outlined">null</span> and <span class="outlined">undefined</span> is the cause of countless bugs in the world - some consider it a <a href="https://www.youtube.com/watch?v=ybrQvs4x0Ps">billing dollar mistake</a>! The <span class="outlined">strictNullChecks</span> flag makes handling <span class="outlined">null</span> and <span class="outlined">undefined</span> more explicit, and <em>spares</em> us from worrying about whether we <em>forgot</em> to handle <span class="outlined">null</span> and <span class="outlined">undefined</span>.
+                        </p>
+                    </article>
+                </section>
+            </main>
+        </div>
+        <script src="assets/js/myscript.js"></script>
+        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+        <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] +
+            ':35729/livereload.js?snipver=2"></' + 'script>')</script>
+    </body>Q
+</html>
